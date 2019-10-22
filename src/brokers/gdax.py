@@ -7,6 +7,7 @@ import pandas as pd
 import requests
 import sys
 import tailer
+import time
 
 
 class GDAX(object):
@@ -53,7 +54,7 @@ class GDAX(object):
         after = base_trade_number + cls.LIMIT
 
         url = cls.BASE_URL + pair + '/trades/'
-        response = requests.get(url, params=dict(after=after))
+        response = requests.get(url, params=dict(after=after), timeout=10)
 
         # Raise if error
         status_code = response.status_code
@@ -74,6 +75,7 @@ class GDAX(object):
         else:
             filt_trades = trades
 
+        #NOTE: side is maker side, TODO: we need to change it!
         return ([dict(trade_id=trade['trade_id'], size=float(trade['size']),
                       side=trade['side'], price=float(trade['price']),
                       time=trade['time']) for trade in filt_trades], last)
@@ -122,6 +124,27 @@ class GDAX(object):
             except RuntimeError:
                 sys.stdout.write(" KO\n")
                 sys.stdout.flush()
+            except requests.exceptions.HTTPError as errh:
+                print ("Http Error:",errh)
+                time.sleep(3)
+                sys.stdout.flush()
+            except requests.exceptions.ConnectionError as errc:
+                print ("Error Connecting:",errc)
+                time.sleep(3)
+                sys.stdout.flush()
+            except requests.exceptions.Timeout as errt:
+                print ("Timeout Error:",errt)
+                time.sleep(3)
+                sys.stdout.flush()
+            except requests.exceptions.RequestException as err:
+                print ("OOps: Something Else",err)
+                time.sleep(3)
+                sys.stdout.flush()
+            except:
+                print ("OOps: Something Else")
+                sys.stdout.flush()
+                time.sleep(3)
+
 
     @staticmethod
     def get_last_trade_id_of_file(file_path):

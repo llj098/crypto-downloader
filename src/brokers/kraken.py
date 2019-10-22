@@ -104,7 +104,8 @@ class Kraken(object):
         Raise a Runtime Error if problem during the request.
         """
         response = requests.get(cls.BASE_URL,
-                                params=dict(pair=pair, since=timestamp))
+                                params=dict(pair=pair, since=timestamp),
+                                timeout=10)
 
         # Raise if error
         status_code = response.status_code
@@ -163,6 +164,7 @@ class Kraken(object):
                 if not trades:
                     return
 
+                #NOTE: side is taker side
                 cols = ['price', 'size', 'timestamp', 'side', 'type', 'misc']
                 df = pd.DataFrame(trades, columns=cols)
                 df.timestamp = df.timestamp * 10**4
@@ -182,6 +184,27 @@ class Kraken(object):
                 sys.stdout.write(" KO (Rate limit exceeded - Wait 3 sec)\n")
                 time.sleep(3)
                 sys.stdout.flush()
+            except requests.exceptions.HTTPError as errh:
+                print ("Http Error:",errh)
+                time.sleep(3)
+                sys.stdout.flush()
+            except requests.exceptions.ConnectionError as errc:
+                print ("Error Connecting:",errc)
+                time.sleep(3)
+                sys.stdout.flush()
+            except requests.exceptions.Timeout as errt:
+                print ("Timeout Error:",errt)
+                time.sleep(3)
+                sys.stdout.flush()
+            except requests.exceptions.RequestException as err:
+                print ("OOps: Something Else",err)
+                time.sleep(3)
+                sys.stdout.flush()
+            except:
+                print ("OOps: Something Else")
+                time.sleep(3)
+                sys.stdout.flush()
+
 
     @staticmethod
     def check_file_consistency(file_path):

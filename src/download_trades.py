@@ -11,6 +11,7 @@ import os.path
 
 from brokers.gdax import GDAX
 from brokers.kraken import Kraken
+from brokers.binance import Binance
 
 
 def main():
@@ -72,7 +73,7 @@ def main():
     pair = args.pair
     output_dir = os.path.join(args.output_dir, broker_str)
 
-    brokers = {'GDAX': GDAX, 'Kraken': Kraken}
+    brokers = {'GDAX': GDAX, 'Kraken': Kraken, 'Binance': Binance}
 
     if broker_str not in brokers:
         print 'broker should be one of: ' + ', '.join(brokers)
@@ -99,7 +100,6 @@ def main():
 
     # Check files consistency
     broker.print_check_file_consistency(output_file)
-
 
 if __name__ == '__main__':
     main()
