@@ -2,4 +2,4 @@
 .cache
 *.log
 *.sh
-./test
+./test/*
